@@ -108,7 +108,9 @@ def calculate_metrics(question, answer, correct_answer):
 
             llm_relevance_metric.measure(test_case)
             llm_relevance_score = llm_relevance_metric.score
+            print(f"The LLM relevance score is {llm_relevance_score}")
         except Exception as e:
+            print("Could not calculate LLM-based relevance score.")
             llm_relevance_score = 0.0 # エラー時は0
 
     return bleu_score, similarity_score, word_count, relevance_score, llm_relevance_score
