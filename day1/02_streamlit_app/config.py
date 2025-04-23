@@ -1,3 +1,3 @@
 # config.py
 DB_FILE = "chat_feedback.db"
-MODEL_NAME = "openai-community/gpt2-large"
+MODEL_NAME = "meta-llama/Llama-3.2-3B-Instruct"
