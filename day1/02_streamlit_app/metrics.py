@@ -5,6 +5,8 @@ from janome.tokenizer import Tokenizer
 import re
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
+from deepeval.metrics import AnswerRelevancyMetric
+from deepeval.test_case import LLMTestCase
 
 # NLTKのヘルパー関数（エラー時フォールバック付き）
 try:
@@ -34,15 +36,16 @@ def initialize_nltk():
     except Exception as e:
         st.error(f"NLTKデータのダウンロードに失敗しました: {e}")
 
-def calculate_metrics(answer, correct_answer):
+def calculate_metrics(question, answer, correct_answer):
     """回答と正解から評価指標を計算する"""
     word_count = 0
     bleu_score = 0.0
     similarity_score = 0.0
     relevance_score = 0.0
+    llm_relevance_score = 0.0
 
     if not answer: # 回答がない場合は計算しない
-        return bleu_score, similarity_score, word_count, relevance_score
+        return bleu_score, similarity_score, word_count, relevance_score, llm_relevance_score
 
     # 単語数のカウント
     tokenizer = Tokenizer()
@@ -92,8 +95,25 @@ def calculate_metrics(answer, correct_answer):
         except Exception as e:
             # st.warning(f"関連性スコア計算エラー: {e}")
             relevance_score = 0.0 # エラー時は0
+        
+        # DeepEvalのLLMを用いた関連性スコア
+        try:
+            llm_relevance_metric = AnswerRelevancyMetric(
+                include_reason=False
+            )
+            test_case = LLMTestCase(
+                input=question,
+                actual_output=answer_lower,
+            )
 
-    return bleu_score, similarity_score, word_count, relevance_score
+            llm_relevance_metric.measure(test_case)
+            llm_relevance_score = llm_relevance_metric.score
+            print(f"The LLM relevance score is {llm_relevance_score}")
+        except Exception as e:
+            print("Could not calculate LLM-based relevance score.")
+            llm_relevance_score = 0.0 # エラー時は0
+
+    return bleu_score, similarity_score, word_count, relevance_score, llm_relevance_score
 
 def get_metrics_descriptions():
     """評価指標の説明を返す"""
@@ -104,5 +124,6 @@ def get_metrics_descriptions():
         "類似度スコア (similarity_score)": "TF-IDFベクトルのコサイン類似度による、正解と回答の意味的な類似性 (0〜1の値)",
         "単語数 (word_count)": "回答に含まれる単語の数。情報量や詳細さの指標",
         "関連性スコア (relevance_score)": "正解と回答の共通単語の割合。トピックの関連性を表す (0〜1の値)",
-        "効率性スコア (efficiency_score)": "正確性を応答時間で割った値。高速で正確な回答ほど高スコア"
+        "効率性スコア (efficiency_score)": "正確性を応答時間で割った値。高速で正確な回答ほど高スコア",
+        "DeepEval関連性スコア (llm_relevance_score)": "LLMを用いた関連性のスコア。",
     }

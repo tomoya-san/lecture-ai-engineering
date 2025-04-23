@@ -103,7 +103,7 @@ def create_sample_evaluation_data():
                 feedback=item["feedback"],
                 correct_answer=item["correct_answer"],
                 is_correct=item["is_correct"],
-                response_time=item["response_time"]
+                response_time=item["response_time"],
             )
             added_count += 1
 
