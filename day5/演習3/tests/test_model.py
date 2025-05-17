@@ -172,11 +172,12 @@ def test_model_reproducibility(sample_data, preprocessor):
         predictions1, predictions2
     ), "モデルの予測結果に再現性がありません"
 
+
 def test_model_save_and_load(train_model):
     trained_model, X_test, y_test = train_model
     with open("models/titanic_model.pkl", "rb") as f:
         loaded_model = pickle.load(f)
-    
+
     original_predictions = trained_model.predict(X_test)
     loaded_predictions = loaded_model.predict(X_test)
 
