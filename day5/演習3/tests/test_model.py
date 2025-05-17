@@ -175,7 +175,7 @@ def test_model_reproducibility(sample_data, preprocessor):
 
 def test_model_save_and_load(train_model):
     trained_model, X_test, y_test = train_model
-    with open("models/titanic_model.pkl", "rb") as f:
+    with open(MODEL_PATH, "rb") as f:
         loaded_model = pickle.load(f)
 
     original_predictions = trained_model.predict(X_test)
