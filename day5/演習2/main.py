@@ -130,7 +130,9 @@ class ModelTester:
         numeric_features = ["Age", "Fare", "SibSp", "Parch"]
         numeric_transformer = Pipeline(
             steps=[
+                # fill missing values using the median of the column
                 ("imputer", SimpleImputer(strategy="median")),
+                # scale features to have mean = 0 and std = 1
                 ("scaler", StandardScaler()),
             ]
         )
@@ -138,11 +140,13 @@ class ModelTester:
         categorical_features = ["Pclass", "Sex", "Embarked"]
         categorical_transformer = Pipeline(
             steps=[
+                # fill missing values with the most frequent category
                 ("imputer", SimpleImputer(strategy="most_frequent")),
                 ("onehot", OneHotEncoder(handle_unknown="ignore")),
             ]
         )
 
+        # combine numeric and categorical columns
         preprocessor = ColumnTransformer(
             transformers=[
                 ("num", numeric_transformer, numeric_features),
@@ -206,6 +210,7 @@ class ModelTester:
 
 
 # テスト関数（pytestで実行可能）
+# pytestはmainファイルに定義された"test_"から始まる関数を実行してくれる。
 def test_data_validation():
     """データバリデーションのテスト"""
     # データロード

@@ -14,6 +14,12 @@ import random
 import logging
 
 # ロガーの設定
+# levelは閾値の設定で、INFOまたはそれより高い重要度（INFO, WARNING, ERROR, CRITICAL）がログに残されます。
+# 逆にDEBUGは無視されます。
+# asctime: タイムスタンプ
+# name: 現在のモデュール名(__name__)。この場合は、pipeline
+# levelname: セキュリティレベル（INFO, WARNING, ERROR, ...）
+# message: ログのメッセージ
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
@@ -96,6 +102,7 @@ def log_model(model, accuracy, params, X_train, X_test):
             mlflow.log_params(params)
 
             # 重要な特徴量のロギング
+            # Xの列ごとに重要度が返される。
             feature_importances = model.feature_importances_
             for i, feature in enumerate(X_train.columns):
                 mlflow.log_metric(
@@ -154,6 +161,8 @@ if __name__ == "__main__":
         pipeline = create_pipeline()
 
         # データカタログの作成
+        # 全てのデータはメモリ上にしか存在せず、ディスクには保存されていない。
+        # テストやプロトタイピング、小さなパイプラインの際はこれが有効。
         catalog = KedroDataCatalog(
             {
                 "X_train": MemoryDataset(),

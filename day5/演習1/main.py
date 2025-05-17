@@ -63,15 +63,22 @@ def log_model(model, accuracy, params):
         mlflow.log_metric("accuracy", accuracy)
 
         # モデルのシグネチャを推論
+        # つまり、モデルの入出力の例を渡すことによって、それらのデータの型などを推論して定義してくれる。
+        # これをスキーマとして持つことで、違う型が入ってくることに対してエラー処理を行うことができる。
         signature = infer_signature(X_train, model.predict(X_train))
 
-        # モデルを保存
+        # モデルをmlruns内の/artifacts/model配下に保存
+        # モデルオブジェクトを.pkl
+        # メタデータをMLmodel
+        # 依存関係をconda.yaml
+        # などなど
         mlflow.sklearn.log_model(
             model,
             "model",
             signature=signature,
             input_example=X_test.iloc[:5],  # 入力例を指定
         )
+        
         # accurecyとparmsは改行して表示
         print(f"モデルのログ記録値 \naccuracy: {accuracy}\nparams: {params}")
 
